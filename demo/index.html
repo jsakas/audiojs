@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>AudioJS Demo</h1>
+    <hr />
+
+    <h2>Global Controls</h2>
+    <button type="button">Play All</button>
+    <button type="button">Stop All</button>
+    <button type="button">Next</button>
+    <button type="button">Previous</button>
+    <hr />
+
+    <h2>Individual Tracks</h2>
+
+    <h3>Track 1</h3>
+    <button type="button">Play Now</button>
+    <button type="button">Add To Queue</button>
+
+    <h3>Track 2</h3>
+    <button type="button">Play Now</button>
+    <button type="button">Add To Queue</button>
+
+    <h3>Track 3</h3>
+    <button type="button">Play Now</button>
+    <button type="button">Add To Queue</button>
+    <hr />
+
+    <h2>Current Queue</h2>
+    <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+    <hr />
+
+    <h2>Progress Bar</h2>
+    <progress value="22" max="100"></progress>
+    <hr />
+
+    <h2>Visualizer</h2>
+    <canvas id="visualizer" style="width:200px; height:200px; border:1px solid #000"></canvas>
+    <hr />
+
+    <script src="../source/WebAudio.js" /></script>
+    <script src="../source/WebAudioViz.js" /></script>
+    <script src="js/demo.js" /></script>
+</body>
+
+</html>
