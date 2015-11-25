@@ -1,0 +1,13 @@
+body {
+  padding: 20px; }
+
+.track {
+  border: 1px solid black;
+  display: inline-block;
+  padding: 20px;
+  transition: all .3s; }
+
+.playing {
+  background-color: #bdbdbd; }
+
+/*# sourceMappingURL=style.css.map */
