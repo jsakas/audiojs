@@ -3,7 +3,7 @@ Under active development... this project is very new, mainly for my own amusemen
 
 Abstracts the WebAudioAPI so you can easily plug and play with just a few lines of code.
 
-    var audio = new WebAudio();
-    audio.init('static/audio/my_track.mp3');
-    audio.start();
+### Run the demo with python
+
+    $ python -m SimpleHTTPServer 8000
     
