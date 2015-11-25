@@ -2,59 +2,41 @@ var WebAudio = function() {
 
     var WebAudio = this;
 
-    var loaded = false;
-    var playing = false;
     var currentTime = 0;
-    var storedBuffer = null;
-
-    this.loaded = false;
-    this.playing = false;
-    this.time = null;
-    this.sampleRate = null;
-
+    var currentTrack;
     var audioContext;
     var analyser;
     var source;
     var freqDomain;
     var timeDomain;
+    var progressBar;
 
-    // init audio context and load the track
-    this.init = function(url) {
-        // create context
-        ac = window.AudioContext || window.webkitAudioContext;
-        audioContext = new ac();
-        this.getBuffer(url, this.connect);
 
+    this.loaded = false;
+    this.playing = false;
+    this.time = null;
+    this.sampleRate = null;
+    this.context;
+    this.queue = [];
+    this.queuePosition = 0;
+
+
+    // initialize audio context
+    this.init = function() {
+        audioContext = new(window.AudioContext || window.webkitAudioContext)();
     }
 
-    this.getBuffer = function(url, callback) {
-
-        var request = new XMLHttpRequest();
-
-        request.open('GET', url, true);
-        request.responseType = 'arraybuffer';
-        
-        request.onload = function() {
-            
-            audioContext.decodeAudioData(request.response, function(buffer) {
-                storedBuffer = buffer;
-                WebAudio.sampleRate = buffer.sampleRate;
-                callback(buffer);
-            });
-            
-        };
-
-        request.send();
-
+    // load / connect a track
+    this.load = function() {
+        this.connect();
     }
 
 
-    this.connect = function(buffer) {
+    // connect to destination
+    this.connect = function() {
 
-        // create nodes
         source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        
+
         analyser = audioContext.createAnalyser();
         analyser.smoothingTimeConstant = .9;
         analyser.fftSize = 2048;
@@ -63,7 +45,7 @@ var WebAudio = function() {
         gainNode.gain.value = .8;
 
         freqDomain = new Uint8Array(analyser.frequencyBinCount);
-        
+
         source.connect(analyser);
         analyser.connect(gainNode);
         gainNode.connect(audioContext.destination);
@@ -71,11 +53,78 @@ var WebAudio = function() {
         WebAudio.loaded = true;
         loaded = true;
 
+        return source;
+
     }
+
+    this.connectMediaElement = function(mediaElement, audioElement) {
+        mediaElement.connect(audioContext.destination);
+
+        // add event listener for audio ended
+        audioElement.addEventListener('ended', function() {
+            currentTrack.parentNode.classList.remove('playing');
+            WebAudio.playNext();
+        });
+
+    }
+
+    /* a debugging function, log the queue */
+    this.logQueue = function() {
+        console.log('queue:' + this.queue);
+        console.log('queuePosition: ' + this.queuePosition);
+        console.log('queue.length: ' + this.queue.length);
+    }
+
+    this.insertQueue = function(audioElement) {
+        this.queue.splice(this.queuePosition, 0, audioElement);
+    }
+
+    this.startInstant = function(audioElement) {
+        // add track to queue
+        this.insertQueue(audioElement);
+        this.start();
+    }
+
+    this.start = function() {
+        try {
+            // get the current track from the queue
+            currentTrack = this.queue[this.queuePosition];
+
+            // create source from createMediaELementSource
+            source = audioContext.createMediaElementSource(currentTrack);
+
+            // connect the source to the destination
+            this.connectMediaElement(source, currentTrack);
+
+        } catch (e) {
+            console.log('An error occured in WebAudio.start()')
+            console.log(e);
+        } finally {
+            currentTrack.parentNode.classList.add('playing');
+            currentTrack.play();
+        }
+
+    }
+
+
+    this.initProgressBar = function(element) {
+        WebAudio.progressBar = element;
+
+        function update() {
+            val = (WebAudio.queue[WebAudio.queuePosition].currentTime / WebAudio.queue[WebAudio.queuePosition].duration) * 100;
+            WebAudio.progressBar.setAttribute('value', val);
+            requestAnimationFrame(update);
+        }
+
+        update();
+
+    }
+
 
     this.time = function() {
         return audioContext.currentTime;
     }
+
 
     this.getByteFrequencyData = function() {
         if (!playing) return;
@@ -83,49 +132,61 @@ var WebAudio = function() {
         return freqDomain;
     }
 
+
     this.getByteTimeDomainData = function() {
         if (!playing) return;
         analyser.getByteTimeDomainData(timeDomain);
-        return timeDomain;      
-    }
-
-
-    this.start = function() {
-        if (playing) return;
-        try {
-            source.start(0, currentTime);
-            playing = true;
-            console.log('playing. currentTime: ' + currentTime);
-        } catch (InvalidStateError) {
-            console.log('creating buffer...');
-            this.connect(storedBuffer);
-            this.start();
-            
-        }
+        return timeDomain;
     }
 
     this.pause = function() {
-        if (!playing) return;
-        source.stop();
-        currentTime = audioContext.currentTime;
-        playing = false;
-        console.log('pausing. currentTime: ' + currentTime);
+        WebAudio.queue[WebAudio.queuePosition].pause();
     }
 
     this.stop = function() {
-        if (!playing) return;
-        source.stop();
-        currentTime = 0;
-        playing = false;
+        currentTrack.parentNode.classList.remove('playing');
+        currentTrack.pause();
     }
 
-    this.isLoaded = function() {
-        return loaded;
+    this.addQueue = function(url) {
+        console.log('Add to queue: ' + url);
+        this.queue.push(url);
     }
 
-    this.isPlaying = function() {
-        return playing;
+    this.getQueue = function() {
+        return this.queue;
     }
 
+    this.playNext = function() {
+        WebAudio.queuePosition < WebAudio.queue.length - 1 ? playNext() : false;
+
+        function playNext() {
+            WebAudio.stop();
+            currentTrack.parentNode.classList.remove('playing');
+            WebAudio.queuePosition += 1;
+            WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
+            WebAudio.load(WebAudio.queue[WebAudio.queuePosition]);
+            WebAudio.start();
+        }
+    }
+
+    this.playPrevious = function() {
+        WebAudio.queuePosition > 0 ? playPrevious() : restart();
+
+        function playPrevious() {
+            WebAudio.stop();
+            currentTrack.parentNode.classList.remove('playing');
+            WebAudio.queuePosition -= 1;
+            WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
+            WebAudio.load(WebAudio.queue[WebAudio.queuePosition]);
+            WebAudio.start();
+        }
+
+        function restart() {
+            WebAudio.start();
+        }
+    }
+
+    this.init();
 
 };

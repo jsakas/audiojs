@@ -7,8 +7,8 @@ var WebAudioViz = function() {
 
     var height = 40;
 
-    this.init = function(wa, canvas) {
-        audioContext = wa;
+    this.init = function(context, canvas) {
+        audioContext = context;
         vizCanvas = canvas;
         vizContext = vizCanvas.getContext('2d');
 
