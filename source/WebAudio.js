@@ -90,17 +90,45 @@ var WebAudio = function() {
             // get the current track from the queue
             currentTrack = this.queue[this.queuePosition];
 
-            // create source from createMediaELementSource
-            source = audioContext.createMediaElementSource(currentTrack);
 
-            // connect the source to the destination
-            this.connectMediaElement(source, currentTrack);
+            // check the tag
+            if (typeof currentTrack ===  "object" && currentTrack.tagName == 'AUDIO') {
+                // create source from createMediaELementSource
+                source = audioContext.createMediaElementSource(currentTrack);
+
+                // connect the source to the destination
+                this.connectMediaElement(source, currentTrack);
+
+            } else if (typeof currentTrack === "string") {
+                console.log('connect string');
+
+                var audioElement = document.createElement('audio');
+                audioElement.setAttribute('src', currentTrack);
+                audioElement.setAttribute('preload', 'auto');
+                audioElement.load();
+
+
+                this.queue[this.queuePosition] = audioElement;
+
+                currentTrack = this.queue[this.queuePosition];
+
+                // create source from createMediaELementSource
+                source = audioContext.createMediaElementSource(currentTrack);
+
+                // connect the source to the destination
+                this.connectMediaElement(source, currentTrack);
+
+
+            } else {
+                console.log('unrecognized audio type');
+            }
+
 
         } catch (e) {
             console.log('An error occured in WebAudio.start()')
             console.log(e);
         } finally {
-            currentTrack.parentNode.classList.add('playing');
+            // currentTrack.parentNode.classList.add('playing');
             currentTrack.play();
         }
 
@@ -144,7 +172,7 @@ var WebAudio = function() {
     }
 
     this.stop = function() {
-        currentTrack.parentNode.classList.remove('playing');
+        //currentTrack.parentNode.classList.remove('playing');
         currentTrack.pause();
     }
 
@@ -162,7 +190,7 @@ var WebAudio = function() {
 
         function playNext() {
             WebAudio.stop();
-            currentTrack.parentNode.classList.remove('playing');
+            //currentTrack.parentNode.classList.remove('playing');
             WebAudio.queuePosition += 1;
             WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
             WebAudio.load(WebAudio.queue[WebAudio.queuePosition]);

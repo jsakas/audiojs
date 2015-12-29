@@ -7,6 +7,10 @@ AudioJS Demo
 var audio = new WebAudio();
 
 
+// add a non audio element to queue
+audio.addQueue('audio/sample_7.mp3');
+
+
 // add audio elements to queue
 tags =  document.getElementsByTagName('audio');
 for (var tag = 0; tag < tags.length; tag++) {
