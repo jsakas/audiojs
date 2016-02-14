@@ -7,19 +7,30 @@ AudioJS Demo
 var audio = new WebAudio();
 
 
-// add audio elements to queue
-tags =  document.getElementsByTagName('audio');
-for (var tag = 0; tag < tags.length; tag++) {
-	audio.addQueue(tags[tag]);
-}
+audio.addQueue({
+	'file': 'audio/sample_1.mp3',
+	'title': 'Track 1',
+	'element': document.getElementById('track-1'),
+	'play_button': document.getElementById('track-1-play'),
+	'queue_button': document.getElementById('track-1-queue')
 
-// add a play button to each audio element
-play_buttons = document.getElementsByClassName('play-button');
-for (var b = 0; b < play_buttons.length; b++) {
-	play_buttons[b].addEventListener('click', function(e, element) {
-		audio.startInstant(document.getElementById(this.dataset.audiojsPlay));
-	})
-}
+});
+
+audio.addQueue({
+	'file': 'audio/sample_2.mp3',
+	'title': 'Track 2',
+	'element': document.getElementById('track-2'),
+	'play_button': document.getElementById('track-2-play'),
+	'queue_button': document.getElementById('track-2-queue')
+});
+
+audio.addQueue({
+	'file': 'audio/sample_3.mp3',
+	'title': 'Track 3',
+	'element': document.getElementById('track-3'),
+	'play_button': document.getElementById('track-3-play'),
+	'queue_button': document.getElementById('track-3-queue')
+});
 
 
 // create play all button
