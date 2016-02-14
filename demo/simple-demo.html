@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AudioJS Demo</title>
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+    <h1>AudioJS Demo</h1><progress value="0" max="100" id="audio-progress"></progress>
+    <hr />
+    <div class="global-controls">
+        <span id="play-all" class="glyphicon glyphicon-play"></span>
+        <span id="stop-all" class="glyphicon glyphicon-stop"></span>
+        <span id="play-previous" class="glyphicon glyphicon-backward"></span>
+        <span id="play-next" class="glyphicon glyphicon-forward"></span>
+    </div>
+    <hr />
+    <div class="track" id="track-1" data-audio-source="audio/sample_1.mp3">
+        <span id="track-1-play" class="glyphicon glyphicon-play"></span>
+        <span id="track-1-queue" class="glyphicon glyphicon-plus"></span>
+        <span>Track 1</span>
+    </div>
+    
+    <div class="track" id="track-2" data-audio-source="audio/sample_2.mp3">
+        <span id="track-2-play" class="glyphicon glyphicon-play"></span>
+        <span id="track-2-queue" class="glyphicon glyphicon-plus"></span>
+        <span>Track 2</span>
+    </div>
+
+     <div class="track" id="track-3" data-audio-source="audio/sample_3.mp3">
+        <span id="track-3-play" class="glyphicon glyphicon-play"></span>
+        <span id="track-3-queue" class="glyphicon glyphicon-plus"></span>
+        <span>Track 3</span>
+    </div>   
+    <hr />
+
+    <script src="../source/WebAudio.js" /></script>
+    <script src="js/simple-demo.js" /></script>
+</body>
+
+</html>
