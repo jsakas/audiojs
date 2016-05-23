@@ -15,6 +15,7 @@ var WebAudioViz = function() {
     }
 
     this.start = function() {
+        console.log('Starting visualizer');
         window.requestAnimationFrame(go);
     }
 
