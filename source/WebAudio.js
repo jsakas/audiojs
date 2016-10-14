@@ -95,9 +95,12 @@ var WebAudio = function() {
         this.start();
     }
 
-    this.startInstant = function(audioElement) {
-        // add track to queue
-        this.insertQueue(audioElement);
+    /**
+    * Adds a track to the end of the queue, sets the queue position to the end an starts playback
+    */
+    this.startInstant = function(obj) {
+        this.addQueue(obj);
+        this.queuePosition = this.queue.length - 1;
         this.stop();
         this.start();
     }
@@ -177,37 +180,37 @@ var WebAudio = function() {
         }
     }
 
-    this.addQueue = function(audio) {
+    this.addQueue = function(obj) {
 
         var audioElement = document.createElement('audio');
         audioElement.setAttribute('crossOrigin', 'anonymous');
-        audioElement.setAttribute('src', audio['file']);
+        audioElement.setAttribute('src', obj['file']);
         audioElement.setAttribute('preload', 'auto');
         audioElement.load();
 
         // add queue position to audioElement
         audioElement['queue_position'] = this.queue.length;
 
-        if (audio['play_button']) {
-            audio['play_button'].addEventListener('click', function() {
+        if (obj['play_button']) {
+            obj['play_button'].addEventListener('click', function() {
                 WebAudio.playPosition(audioElement['queue_position']);
             })
         }
 
-        if (audio['element']) {
+        if (obj['element']) {
             audioElement.addEventListener('play', function(){
                 console.log('Audio element has started playback');
-                audio['element'].classList.add('playing');
+                obj['element'].classList.add('playing');
             });
 
             audioElement.addEventListener('pause', function() {
                 console.log('Audio element has paused playback');
-                audio['element'].classList.remove('playing');
+                obj['element'].classList.remove('playing');
             });
 
             audioElement.addEventListener('ended', function() {
                 console.log('Audio element has ended playback');
-                audio['element'].classList.remove('playing');
+                obj['element'].classList.remove('playing');
                 WebAudio.playNext();
             });
         }
