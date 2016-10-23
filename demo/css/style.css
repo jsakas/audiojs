@@ -1,25 +1,40 @@
 body {
   padding: 20px; }
 
+#audio-player {
+  opacity: 0;
+  transition: all 1s; }
+  #audio-player.loaded {
+    opacity: 1;
+    transition: all 1s; }
+
+.currently-playing {
+  max-width: 300px; }
+
 .track {
-  border: 1px solid black;
+  border: 1px solid #d7d7d7;
   display: block;
   padding: 10px;
   font-size: 1.25em;
   transition: all .3s;
   margin-bottom: 2px;
   position: relative; }
+  .track:hover {
+    background-color: #e7e7e7; }
 
 .global-controls {
   font-size: 2.5em; }
+  .global-controls span {
+    margin-right: 10px; }
 
 .playing {
-  background-color: #bdbdbd; }
+  background-color: #c7c7c7; }
 
 .glyphicon {
   cursor: pointer; }
 
-.glyphicon-plus {
+.glyphicon-plus,
+.glyphicon-remove {
   float: right; }
 
 .album-art img {
@@ -28,6 +43,9 @@ body {
 
 .audio-progress {
   width: 100%; }
+
+.grid-play {
+  margin-right: 10px; }
 
 .queue-container {
   list-style-type: none;
@@ -38,15 +56,17 @@ body {
     border-radius: 50%;
     height: 25px;
     width: 25px;
-    background-color: #ffffff;
     margin: 0;
     display: inline-block; }
   .queue-container .queue-item {
     transition: all .3s;
     padding: 5px;
-    border: 1px solid #000000;
+    border: 1px solid #d7d7d7;
     margin: 2px 0;
-    display: block; }
+    display: block;
+    cursor: pointer; }
+    .queue-container .queue-item:hover {
+      background-color: #e7e7e7; }
   .queue-container .queue-track {
     vertical-align: middle;
     display: inline-block;

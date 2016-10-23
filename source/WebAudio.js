@@ -28,7 +28,6 @@ var WebAudio = function() {
 
     // load / connect a track
     this.load = function() {
-
         console.log('WebAudio.load() called');
         this.connect();
     }
@@ -121,10 +120,11 @@ var WebAudio = function() {
             console.log('An error occured in WebAudio.start()')
             console.log(e);
         } finally {
-            // currentTrack.parentNode.classList.add('playing');
-            currentTrack.currentTime = 0;
-            currentTrack.play();
-            this.playing = true;
+            if (WebAudio.getQueue().length > 0) {
+                currentTrack.currentTime = 0;
+                currentTrack.play();
+                this.playing = true;
+            }
         }
     }
 
@@ -175,14 +175,18 @@ var WebAudio = function() {
     this.stop = function() {
         try { 
             currentTrack.pause();
+            currentTrack.currentTime = 0;
+            var e = new Event('audiojs:stopped');
+            document.dispatchEvent(e);
         } catch (e) {
-            // not currently playing
+            return; // not currently playing
         }
     }
 
     this.addQueue = function(obj) {
 
         var audioElement = document.createElement('audio');
+        audioElement.metadata = obj;
         audioElement.setAttribute('crossOrigin', 'anonymous');
         audioElement.setAttribute('src', obj['file']);
         audioElement.setAttribute('preload', 'auto');
@@ -211,9 +215,13 @@ var WebAudio = function() {
             audioElement.addEventListener('ended', function() {
                 console.log('Audio element has ended playback');
                 obj['element'].classList.remove('playing');
-                WebAudio.playNext();
             });
         }
+
+        audioElement.addEventListener('ended', function() {
+            var e = new Event('audiojs:ended');
+            document.dispatchEvent(e);
+        });
 
         this.queue.push(audioElement);
 
@@ -223,14 +231,46 @@ var WebAudio = function() {
         return this.queue;
     }
 
+    this.getQueuePosition = function() {
+        return this.queuePosition;
+    }
+
+    this.setQueuePosition = function(position) {
+        this.queuePosition = position;
+    }
+
+    this.getCurrentTrack = function() {
+        return this.queue[this.queuePosition];
+    }
+
+    this.removeFromQueue = function(position) {
+        try {
+            // stop audio if removing the currently playing track
+            if (position == this.getQueuePosition()) {
+                this.stop();
+            }
+            // readjust queue position if removing node before currently playing
+            if (position < this.getQueuePosition()) {
+                this.setQueuePosition(this.getQueuePosition() - 1);
+            }
+            this.queue.splice(position, 1);
+        } catch (e) {
+            // do nothing
+        }
+    }
+
     this.playNext = function() {
-        WebAudio.queuePosition < WebAudio.queue.length - 1 ? playNext() : false;
+        WebAudio.queuePosition < WebAudio.queue.length - 1 ? playNext() : start();
 
         function playNext() {
             WebAudio.stop();
             WebAudio.queuePosition += 1;
             WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
             WebAudio.load(WebAudio.queue[WebAudio.queuePosition]);
+            WebAudio.start();
+        }
+
+        function start() {
             WebAudio.start();
         }
     }
@@ -247,6 +287,17 @@ var WebAudio = function() {
         }
 
         function restart() {
+            WebAudio.start();
+        }
+    }
+
+    this.playIndex = function(index) {
+        (WebAudio.queue.length < (index + 1) || index > -1) ? play(index) : false;
+
+        function play(index) {
+            WebAudio.stop();
+            WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
+            WebAudio.setQueuePosition(index);
             WebAudio.start();
         }
     }
