@@ -176,6 +176,7 @@ var WebAudio = function() {
         try { 
             currentTrack.pause();
             currentTrack.currentTime = 0;
+            this.playing = false;
             var e = new Event('audiojs:stopped');
             document.dispatchEvent(e);
         } catch (e) {
@@ -260,7 +261,7 @@ var WebAudio = function() {
     }
 
     this.playNext = function() {
-        WebAudio.queuePosition < WebAudio.queue.length - 1 ? playNext() : start();
+        WebAudio.queuePosition < (WebAudio.queue.length - 1) ? playNext() : stop();
 
         function playNext() {
             WebAudio.stop();
@@ -270,8 +271,8 @@ var WebAudio = function() {
             WebAudio.start();
         }
 
-        function start() {
-            WebAudio.start();
+        function stop() {
+            WebAudio.stop();
         }
     }
 
