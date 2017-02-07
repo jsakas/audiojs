@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>AudioJS</title>
+  <link rel="stylesheet" href="css/bootstrap.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <div class="body">
+    <h1>AudioJS</h1>
+    <p>Audio is is an interface into the Web Audio API. It's main purpose is be able to quickly build a player and queue system.</p>
+    <progress value="0" max="100" id="audio-progress" class="audio-progress"></progress>
+    <hr />
+    <div class="global-controls">
+      <span id="play-all" class="glyphicon glyphicon-play"></span>
+      <span id="stop-all" class="glyphicon glyphicon-stop"></span>
+      <span id="play-previous" class="glyphicon glyphicon-backward"></span>
+      <span id="play-next" class="glyphicon glyphicon-forward"></span>
+    </div>
+  </div>
+
+  <canvas id="visualizer"></canvas>
+
+  <script type="text/javascript" src="../dist/WebAudio2.js" /></script>
+  <script type="text/javascript" src="js/index.js" /></script>
+</body>
+
+</html>

@@ -1,126 +1,98 @@
-var WebAudio = function() {
+class WebAudio
+{
 
-    var WebAudio = this;
-
-    var currentTime = 0;
-    var currentTrack;
-    var audioContext;
-    var analyser;
-    var source;
-    var freqDomain;
-    var timeDomain;
-    var progressBar;
-
-
-    this.loaded = false;
-    this.playing = false;
-    this.time = null;
-    this.sampleRate = null;
-    this.context;
-    this.queue = [];
-    this.queuePosition = 0;
-
-
-    // initialize audio context
-    this.init = function() {
-        audioContext = new(window.AudioContext || window.webkitAudioContext)();
+    constructor()
+    {
+        this.analyser = null;
+        this.freqDomain = null;
+        this.timeDomain = null;
+        this.progressBar = null;
+        this.playing = false;
+        this.time = null;
+        this.sampleRate = null;
+        this.context;
+        this.queue = [];
+        this.queuePosition = 0;
+        this.audioContext = new(window.AudioContext || window.webkitAudioContext)();
     }
 
-    // load / connect a track
-    this.load = function() {
-        console.log('WebAudio.load() called');
-        this.connect();
-    }
-
-    // connect to destination
-    this.connect = function() {
-        
-        console.log('WebAudio.connect() called');
-        
-        source = audioContext.createBufferSource();
-
-        analyser = audioContext.createAnalyser();
-        analyser.smoothingTimeConstant = .9;
-        analyser.fftSize = 2048;
-
-        gainNode = audioContext.createGain();
-        gainNode.gain.value = .8;
-
-        freqDomain = new Uint8Array(analyser.frequencyBinCount);
-
-        source.connect(analyser);
-        analyser.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        WebAudio.loaded = true;
-        loaded = true;
-
+    connect()
+    {
+        var source = this.audioContext.createBufferSource();
         return source;
-
     }
 
     // connect the media element to the destination
-    this.connectMediaElement = function(mediaElement) {
+    connectMediaElement(source, mediaElement)
+    {
 
-        analyser = audioContext.createAnalyser();
+        var analyser = this.audioContext.createAnalyser();
         analyser.smoothingTimeConstant = .9;
         analyser.fftSize = 2048;
 
-        gainNode = audioContext.createGain();
+        var gainNode = this.audioContext.createGain();
         gainNode.gain.value = .8;
 
-        freqDomain = new Uint8Array(analyser.frequencyBinCount);
+        var freqDomain = new Uint8Array(analyser.frequencyBinCount);
+
+        this.analyser = analyser;
+        this.freqDomain = freqDomain;
 
         source.connect(analyser);
         analyser.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        mediaElement.connect(audioContext.destination);
+        gainNode.connect(this.audioContext.destination);
     }
 
     // debugging function, logs the queue 
-    this.logQueue = function() {
+    logQueue()
+    {
         console.log('queue:' + this.queue);
-        console.log('queuePosition: ' + this.queuePosition);
-        console.log('queue.length: ' + this.queue.length);
+        console.log('queue position: ' + this.queuePosition);
+        console.log('queue length: ' + this.queue.length);
     }
 
-    this.insertQueue = function(audioElement) {
+    insertQueue(audioElement)
+    {
         this.queue.splice(this.queuePosition, 0, audioElement);
     }
 
-    this.playPosition = function(position) {
+    playPosition(position)
+    {
         this.stop();
-        WebAudio.queuePosition = position;
+        this.queuePosition = position;
         this.start();
     }
 
-    /**
-    * Adds a track to the end of the queue, sets the queue position to the end an starts playback
-    */
-    this.startInstant = function(obj) {
+    startInstant(obj)
+    {
+        this.stop();
         this.addQueue(obj);
         this.queuePosition = this.queue.length - 1;
-        this.stop();
         this.start();
     }
 
-    this.start = function() {
-        try {
-
+    start()
+    {
+        try
+        {
             // get the current track from the queue
-            currentTrack = this.queue[this.queuePosition];
+            var currentTrack = this.queue[this.queuePosition];
 
             // create source from createMediaELementSource
-            source = audioContext.createMediaElementSource(currentTrack);
+            var source = this.audioContext.createMediaElementSource(currentTrack);
 
             // connect the source to the destination
             this.connectMediaElement(source, currentTrack);
-
-        } catch (e) {
+        }
+        catch (e)
+        {
             console.log('An error occured in WebAudio.start()')
-            console.log(e);
-        } finally {
-            if (WebAudio.getQueue().length > 0) {
+            console.log(e.message);
+        }
+        finally
+        {
+            if (this.getQueue().length > 0)
+            {
                 currentTrack.currentTime = 0;
                 currentTrack.play();
                 this.playing = true;
@@ -129,62 +101,82 @@ var WebAudio = function() {
     }
 
 
-    this.initProgressBar = function(element) {
-        WebAudio.progressBar = element;
+    initProgressBar(element)
+    {
+        this.progressBar = element;
+        this.updateProgressBar(this.progressBar);
+    }
 
-        function update() {
-            try {
-                currentTime = WebAudio.queue[WebAudio.queuePosition].currentTime;
-                duration = WebAudio.queue[WebAudio.queuePosition].duration;
-            } catch(e) {
-                currentTime = 0;
-                duration = 1;
-            }
-            progress = (currentTime / duration) * 100;
-            WebAudio.progressBar.setAttribute('value', progress);
-            requestAnimationFrame(update);
+    updateProgressBar()
+    {
+        try
+        {
+            var queue = this.getQueue();
+            var currentTime = queue[this.queuePosition].currentTime;
+            var duration = queue[this.queuePosition].duration;
         }
-
-        update();
+        catch (e)
+        {
+            var currentTime = 0;
+            var duration = 1;
+        }
+        finally
+        {
+            var progress = (currentTime / duration) * 100;
+            this.progressBar.setAttribute('value', progress);
+            requestAnimationFrame(() => this.updateProgressBar());
+        }
 
     }
 
 
-    this.time = function() {
+    getTime()
+    {
         return audioContext.currentTime;
     }
 
 
-    this.getByteFrequencyData = function() {
+    getByteFrequencyData()
+    {
         if (!this.playing) return;
-        analyser.getByteFrequencyData(freqDomain);
-        return freqDomain;
+        this.analyser.getByteFrequencyData(this.freqDomain);
+        return this.freqDomain;
     }
 
 
-    this.getByteTimeDomainData = function() {
+    getByteTimeDomainData()
+    {
         if (!playing) return;
-        analyser.getByteTimeDomainData(timeDomain);
-        return timeDomain;
+        this.analyser.getByteTimeDomainData(this.timeDomain);
+        return this.timeDomain;
     }
 
-    this.pause = function() {
-        WebAudio.queue[WebAudio.queuePosition].pause();
+    pause()
+    {
+        this.queue[this.queuePosition].pause();
     }
 
-    this.stop = function() {
-        try { 
-            currentTrack.pause();
-            currentTrack.currentTime = 0;
-            this.playing = false;
+    stop()
+    {
+        try
+        {
+            this.queue[this.queuePosition].pause();
+            this.queue[this.queuePosition].currentTime = 0;
             var e = new Event('audiojs:stopped');
             document.dispatchEvent(e);
-        } catch (e) {
+        }
+        catch (e)
+        {
             return; // not currently playing
+        }
+        finally
+        {
+            this.playineg = false;
         }
     }
 
-    this.addQueue = function(obj) {
+    addQueue(obj)
+    {
 
         var audioElement = document.createElement('audio');
         audioElement.metadata = obj;
@@ -195,118 +187,141 @@ var WebAudio = function() {
 
         // add queue position to audioElement
         audioElement['queue_position'] = this.queue.length;
-
-        if (obj['play_button']) {
-            obj['play_button'].addEventListener('click', function() {
-                WebAudio.playPosition(audioElement['queue_position']);
-            })
+        if (obj['play_button'])
+        {
+            obj['play_button'].addEventListener('click', (e) =>
+                this.playPosition(audioElement['queue_position'])
+            ).bind(this)
         }
 
-        if (obj['element']) {
-            audioElement.addEventListener('play', function(){
+        if (obj['element'])
+        {
+            audioElement.addEventListener('play', function()
+            {
                 console.log('Audio element has started playback');
                 obj['element'].classList.add('playing');
             });
 
-            audioElement.addEventListener('pause', function() {
+            audioElement.addEventListener('pause', function()
+            {
                 console.log('Audio element has paused playback');
                 obj['element'].classList.remove('playing');
             });
 
-            audioElement.addEventListener('ended', function() {
+            audioElement.addEventListener('ended', function()
+            {
                 console.log('Audio element has ended playback');
                 obj['element'].classList.remove('playing');
             });
         }
 
-        audioElement.addEventListener('ended', function() {
+        audioElement.addEventListener('ended', function()
+        {
             var e = new Event('audiojs:ended');
             document.dispatchEvent(e);
         });
 
         this.queue.push(audioElement);
-
     }
 
-    this.getQueue = function() {
+    getQueue()
+    {
         return this.queue;
     }
 
-    this.getQueuePosition = function() {
+    getQueuePosition()
+    {
         return this.queuePosition;
     }
 
-    this.setQueuePosition = function(position) {
+    setQueuePosition(position)
+    {
         this.queuePosition = position;
     }
 
-    this.getCurrentTrack = function() {
+    getCurrentTrack()
+    {
         return this.queue[this.queuePosition];
     }
 
-    this.removeFromQueue = function(position) {
-        try {
+    getContext()
+    {
+        return this.audioContext;
+    }
+
+    removeFromQueue(position)
+    {
+        try
+        {
             // stop audio if removing the currently playing track
-            if (position == this.getQueuePosition()) {
+            if (position == this.getQueuePosition())
+            {
                 this.stop();
             }
             // readjust queue position if removing node before currently playing
-            if (position < this.getQueuePosition()) {
+            if (position < this.getQueuePosition())
+            {
                 this.setQueuePosition(this.getQueuePosition() - 1);
             }
             this.queue.splice(position, 1);
-        } catch (e) {
+        }
+        catch (e)
+        {
             // do nothing
         }
     }
 
-    this.playNext = function() {
-        WebAudio.queuePosition < (WebAudio.queue.length - 1) ? playNext() : stop();
-
-        function playNext() {
-            WebAudio.stop();
-            WebAudio.queuePosition += 1;
-            WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
-            WebAudio.load(WebAudio.queue[WebAudio.queuePosition]);
-            WebAudio.start();
+    playNext()
+    {
+        if (this.queuePosition < (this.queue.length - 1))
+        {
+            this.stop();
+            this.queuePosition += 1;
+            this.queue[this.queuePosition].currentTime = 0;
+            this.playIndex(this.queue[this.queuePosition]);
+            this.start();
         }
-
-        function stop() {
-            WebAudio.stop();
-        }
-    }
-
-    this.playPrevious = function() {
-        WebAudio.queuePosition > 0 ? playPrevious() : restart();
-
-        function playPrevious() {
-            WebAudio.stop();
-            WebAudio.queuePosition -= 1;
-            WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
-            WebAudio.load(WebAudio.queue[WebAudio.queuePosition]);
-            WebAudio.start();
-        }
-
-        function restart() {
-            WebAudio.start();
+        else
+        {
+            this.stop();
         }
     }
 
-    this.playIndex = function(index) {
-        (WebAudio.queue.length < (index + 1) || index > -1) ? play(index) : false;
+    playPrevious()
+    {
+        var hasPrevious = (this.queuePosition > 0 ? true : false);
 
-        function play(index) {
-            WebAudio.stop();
-            WebAudio.queue[WebAudio.queuePosition].currentTime = 0;
-            WebAudio.setQueuePosition(index);
-            WebAudio.start();
+        if (hasPrevious)
+        {
+            // play the previous track
+            this.stop();
+            this.queuePosition -= 1;
+            this.queue[this.queuePosition].currentTime = 0;
+            this.connect(this.queue[this.queuePosition]);
+            this.start();
+        }
+        else
+        {
+            // restart the current track
+            this.start();
         }
     }
 
-    this.isPlaying = function() {
+    playIndex(index)
+    {
+        var canPlay = (this.queue.length < (index + 1) || index > -1) ? true : false;
+
+        if (canPlay)
+        {
+            this.stop();
+            this.queue[this.queuePosition].currentTime = 0;
+            this.setQueuePosition(index);
+            this.start();
+        }
+    }
+
+    isPlaying()
+    {
         return this.playing;
     }
-
-    this.init();
-
-};
+}
