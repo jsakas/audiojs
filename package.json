@@ -1,0 +1,32 @@
+{
+  "name": "audiojs",
+  "version": "0.1.0",
+  "description": "An interface into the Web Audio API",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-preset-es2015": "^6.18.0"
+  },
+  "scripts": {
+    "build": "babel source -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsakas/audiojs.git"
+  },
+  "keywords": [
+    "Web",
+    "Audio",
+    "API"
+  ],
+  "author": "Jon Sakas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jsakas/audiojs/issues"
+  },
+  "homepage": "https://github.com/jsakas/audiojs"
+}

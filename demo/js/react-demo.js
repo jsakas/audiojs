@@ -5,6 +5,8 @@ AudioJS / ReactJS Demo
 */
 
 var audio = new WebAudio();
+var visualizer = new WebAudioViz(audio, document.getElementById('visualizer')).start();
+
 var tracks =[
     {"id":100001,"artist":"Unknown Artist","title":"Track 1","artwork":"https://placeholdit.imgix.net/~text?txtsize=100&txt=Track+1&w=500&h=500&txttrack=0","file":"audio/sample_1.mp3"},
     {"id":100002,"artist":"Unknown Artist","title":"Track 2","artwork":"https://placeholdit.imgix.net/~text?txtsize=100&txt=Track+2&w=500&h=500&txttrack=0","file":"audio/sample_2.mp3"},
