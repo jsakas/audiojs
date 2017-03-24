@@ -130,8 +130,8 @@ var WebAudio = function () {
             }
         }
     }, {
-        key: 'getTune',
-        value: function getTune() {
+        key: 'getTime',
+        value: function getTime() {
             return audioContext.currentTime;
         }
     }, {
@@ -184,7 +184,7 @@ var WebAudio = function () {
             if (obj['play_button']) {
                 obj['play_button'].addEventListener('click', function (e) {
                     return _this2.playPosition(audioElement['queue_position']);
-                }).bind(this);
+                });
             }
 
             if (obj['element']) {

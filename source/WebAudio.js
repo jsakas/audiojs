@@ -191,7 +191,7 @@ class WebAudio
         {
             obj['play_button'].addEventListener('click', (e) =>
                 this.playPosition(audioElement['queue_position'])
-            ).bind(this)
+            );
         }
 
         if (obj['element'])
