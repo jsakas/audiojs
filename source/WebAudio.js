@@ -26,7 +26,7 @@ class WebAudio
     connectMediaElement(source, mediaElement)
     {
 
-        var analyser = this.audioContext.createanalyser();
+        var analyser = this.audioContext.createAnalyser();
         analyser.smoothingTimeConstant = .9;
         analyser.fftSize = 2048;
 
