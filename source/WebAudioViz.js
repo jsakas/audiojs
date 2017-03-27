@@ -82,3 +82,5 @@ class WebAudioViz
     }
 
 }
+
+export default WebAudioViz
