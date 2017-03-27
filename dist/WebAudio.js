@@ -1,5 +1,9 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -8,9 +12,9 @@ var WebAudio = function () {
     function WebAudio() {
         _classCallCheck(this, WebAudio);
 
-        this.analyser = null;
-        this.freqDomain = null;
-        this.timeDomain = null;
+        this.analyzer = null;
+        this.freqDomain = new Array(1024).fill(0);
+        this.timeDomain = new Array(1024).fill(0);
         this.progressBar = null;
         this.playing = false;
         this.time = null;
@@ -34,20 +38,20 @@ var WebAudio = function () {
         key: 'connectMediaElement',
         value: function connectMediaElement(source, mediaElement) {
 
-            var analyser = this.audioContext.createAnalyser();
-            analyser.smoothingTimeConstant = .9;
-            analyser.fftSize = 2048;
+            var analyzer = this.audioContext.createanalyzer();
+            analyzer.smoothingTimeConstant = .9;
+            analyzer.fftSize = 2048;
 
             var gainNode = this.audioContext.createGain();
             gainNode.gain.value = .8;
 
-            var freqDomain = new Uint8Array(analyser.frequencyBinCount);
+            var freqDomain = new Uint8Array(analyzer.frequencyBinCount);
 
-            this.analyser = analyser;
+            this.analyzer = analyzer;
             this.freqDomain = freqDomain;
 
-            source.connect(analyser);
-            analyser.connect(gainNode);
+            source.connect(analyzer);
+            analyzer.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
         }
 
@@ -137,21 +141,28 @@ var WebAudio = function () {
     }, {
         key: 'getByteFrequencyData',
         value: function getByteFrequencyData() {
-            if (!this.playing) return;
-            this.analyser.getByteFrequencyData(this.freqDomain);
-            return this.freqDomain;
+            try {
+                this.analyzer.getByteFrequencyData(this.freqDomain);
+                return this.freqDomain;
+            } catch (e) {
+                return;
+            }
         }
     }, {
         key: 'getByteTimeDomainData',
         value: function getByteTimeDomainData() {
-            if (!playing) return;
-            this.analyser.getByteTimeDomainData(this.timeDomain);
-            return this.timeDomain;
+            try {
+                this.analyzer.getByteTimeDomainData(this.timeDomain);
+                return this.timeDomain;
+            } catch (e) {
+                return;
+            }
         }
     }, {
         key: 'pause',
         value: function pause() {
             this.queue[this.queuePosition].pause();
+            this.playing = false;
         }
     }, {
         key: 'stop',
@@ -164,7 +175,7 @@ var WebAudio = function () {
             } catch (e) {
                 return; // not currently playing
             } finally {
-                this.playineg = false;
+                this.playing = false;
             }
         }
     }, {
@@ -304,3 +315,5 @@ var WebAudio = function () {
 
     return WebAudio;
 }();
+
+exports.default = WebAudio;

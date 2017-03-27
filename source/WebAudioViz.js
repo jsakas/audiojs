@@ -1,10 +1,13 @@
 class WebAudioViz
 {
-    constructor(context, canvas)
+    constructor(context, canvas, draw=false)
     {
         this.audioContext = context;
         this.vizCanvas = canvas;
         this.vizContext = this.vizCanvas.getContext('2d');
+        if (draw) {
+            this.draw = draw;
+        }
     }
 
     start()
@@ -15,11 +18,10 @@ class WebAudioViz
 
     go()
     {
+        var freqData = this.audioContext.getByteFrequencyData();
 
         if (this.audioContext.isPlaying())
         {
-            var freqData = this.audioContext.getByteFrequencyData();
-
             if (freqData != undefined)
             {
                 try
@@ -52,7 +54,6 @@ class WebAudioViz
 
     draw(freqData)
     {
-
         var width = this.vizCanvas.parentNode.clientWidth;
         var height = this.vizCanvas.parentNode.offsetHeight;
 
@@ -81,3 +82,5 @@ class WebAudioViz
     }
 
 }
+
+export default WebAudioViz
