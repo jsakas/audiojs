@@ -4,8 +4,8 @@ class WebAudio
     constructor()
     {
         this.analyser = null;
-        this.freqDomain = null;
-        this.timeDomain = null;
+        this.freqDomain = new Array(1024).fill(0);
+        this.timeDomain = new Array(1024).fill(0);
         this.progressBar = null;
         this.playing = false;
         this.time = null;
@@ -138,22 +138,29 @@ class WebAudio
 
     getByteFrequencyData()
     {
-        if (!this.playing) return;
-        this.analyser.getByteFrequencyData(this.freqDomain);
-        return this.freqDomain;
+        try {
+            this.analyser.getByteFrequencyData(this.freqDomain);
+            return this.freqDomain;
+        } catch (e) {
+            return;
+        }
     }
 
 
     getByteTimeDomainData()
     {
-        if (!playing) return;
-        this.analyser.getByteTimeDomainData(this.timeDomain);
-        return this.timeDomain;
+        try {
+            this.analyser.getByteTimeDomainData(this.timeDomain);
+            return this.timeDomain;
+        } catch (e) {
+            return;
+        }
     }
 
     pause()
     {
         this.queue[this.queuePosition].pause();
+        this.playing = false;
     }
 
     stop()
@@ -171,7 +178,7 @@ class WebAudio
         }
         finally
         {
-            this.playineg = false;
+            this.playing = false;
         }
     }
 

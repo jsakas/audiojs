@@ -9,8 +9,8 @@ var WebAudio = function () {
         _classCallCheck(this, WebAudio);
 
         this.analyser = null;
-        this.freqDomain = null;
-        this.timeDomain = null;
+        this.freqDomain = new Array(1024).fill(0);
+        this.timeDomain = new Array(1024).fill(0);
         this.progressBar = null;
         this.playing = false;
         this.time = null;
@@ -137,21 +137,28 @@ var WebAudio = function () {
     }, {
         key: 'getByteFrequencyData',
         value: function getByteFrequencyData() {
-            if (!this.playing) return;
-            this.analyser.getByteFrequencyData(this.freqDomain);
-            return this.freqDomain;
+            try {
+                this.analyser.getByteFrequencyData(this.freqDomain);
+                return this.freqDomain;
+            } catch (e) {
+                return;
+            }
         }
     }, {
         key: 'getByteTimeDomainData',
         value: function getByteTimeDomainData() {
-            if (!playing) return;
-            this.analyser.getByteTimeDomainData(this.timeDomain);
-            return this.timeDomain;
+            try {
+                this.analyser.getByteTimeDomainData(this.timeDomain);
+                return this.timeDomain;
+            } catch (e) {
+                return;
+            }
         }
     }, {
         key: 'pause',
         value: function pause() {
             this.queue[this.queuePosition].pause();
+            this.playing = false;
         }
     }, {
         key: 'stop',
@@ -164,7 +171,7 @@ var WebAudio = function () {
             } catch (e) {
                 return; // not currently playing
             } finally {
-                this.playineg = false;
+                this.playing = false;
             }
         }
     }, {
