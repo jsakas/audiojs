@@ -332,5 +332,3 @@ class WebAudio
         return this.playing;
     }
 }
-
-export default WebAudio
