@@ -8,7 +8,7 @@ var WebAudio = function () {
     function WebAudio() {
         _classCallCheck(this, WebAudio);
 
-        this.analyzer = null;
+        this.analyser = null;
         this.freqDomain = new Array(1024).fill(0);
         this.timeDomain = new Array(1024).fill(0);
         this.progressBar = null;
@@ -34,20 +34,20 @@ var WebAudio = function () {
         key: 'connectMediaElement',
         value: function connectMediaElement(source, mediaElement) {
 
-            var analyzer = this.audioContext.createanalyzer();
-            analyzer.smoothingTimeConstant = .9;
-            analyzer.fftSize = 2048;
+            var analyser = this.audioContext.createanalyser();
+            analyser.smoothingTimeConstant = .9;
+            analyser.fftSize = 2048;
 
             var gainNode = this.audioContext.createGain();
             gainNode.gain.value = .8;
 
-            var freqDomain = new Uint8Array(analyzer.frequencyBinCount);
+            var freqDomain = new Uint8Array(analyser.frequencyBinCount);
 
-            this.analyzer = analyzer;
+            this.analyser = analyser;
             this.freqDomain = freqDomain;
 
-            source.connect(analyzer);
-            analyzer.connect(gainNode);
+            source.connect(analyser);
+            analyser.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
         }
 
@@ -138,7 +138,7 @@ var WebAudio = function () {
         key: 'getByteFrequencyData',
         value: function getByteFrequencyData() {
             try {
-                this.analyzer.getByteFrequencyData(this.freqDomain);
+                this.analyser.getByteFrequencyData(this.freqDomain);
                 return this.freqDomain;
             } catch (e) {
                 return;
@@ -148,7 +148,7 @@ var WebAudio = function () {
         key: 'getByteTimeDomainData',
         value: function getByteTimeDomainData() {
             try {
-                this.analyzer.getByteTimeDomainData(this.timeDomain);
+                this.analyser.getByteTimeDomainData(this.timeDomain);
                 return this.timeDomain;
             } catch (e) {
                 return;
